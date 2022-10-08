@@ -1,0 +1,86 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
+using UnityEngine.UI;
+using System.Linq;
+using UnityEngine.Networking;
+
+public class Test : MonoBehaviour
+{
+   // public MutableRuntimeReferenceImageLibrary mutableLibrary;
+    public ARTrackedImageManager imageManager;
+    public Texture2D texture2D;
+    public Text GetText;
+    public Text GetText2;
+    private void Awake()
+    {
+
+    }
+    //public Texture2D texture;
+    private void Start()
+    {
+        //Other codes...
+       // StartCoroutine(AddToLibrary());
+    }
+    public void ClickAndAdd()
+    {
+        StartCoroutine(AddToLibrary());
+
+    }
+    private void Update()
+    {
+        ListAllImages();
+    }
+    IEnumerator AddToLibrary()
+    // IEnumerator AddToLibrary()
+     {
+       
+            UnityWebRequest unityWebRequest = UnityWebRequestTexture.GetTexture("https://bdd0-103-74-17-41.in.ngrok.io/download.jpg");
+           
+                yield return unityWebRequest.SendWebRequest();
+            if (unityWebRequest.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError("Error: " + unityWebRequest.error);
+            }
+            else
+            {
+                     texture2D = DownloadHandlerTexture.GetContent(unityWebRequest);
+                    Debug.Log(texture2D.name + " Texture name");
+              GetText2.text = "0";
+          
+                GetText2.text = "1";
+
+               // var jobState = mutableLibrary.ScheduleAddImageWithValidationJob(texture2D, "download", 1);
+                GetText2.text = "2";
+
+              //  yield return new WaitWhile(() => wait && !jobState.jobHandle.IsCompleted);  //Optional wait
+                GetText2.text = "3";
+              if (imageManager.referenceLibrary is MutableRuntimeReferenceImageLibrary mutableLibrary)
+              {
+                mutableLibrary.ScheduleAddImageWithValidationJob(
+                    texture2D,
+                    "download",
+                    0.5f /* 50 cm */);
+              }
+
+            }
+           
+       
+    }
+
+    void ListAllImages()
+    {
+        Debug.Log(
+            $"There are {imageManager.trackables.count} images being tracked.");
+
+        foreach (var trackedImage in imageManager.trackables)
+        {
+            Debug.Log($"Image: {trackedImage.referenceImage.name} is at " +
+                      $"{trackedImage.transform.position}");
+            GetText.text = $"Image: {trackedImage.referenceImage.name} is at " +
+                      $"{trackedImage.transform.position}";
+        }
+    }
+}
